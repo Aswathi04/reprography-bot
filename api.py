@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware  # ADD THIS
 from supabase import create_client
 from telegram import Bot
 
@@ -8,7 +9,18 @@ load_dotenv()
 sb  = create_client(os.environ['SUPABASE_URL'], os.environ['SUPABASE_SERVICE_KEY'])
 bot = Bot(os.environ['BOT_TOKEN'])
 BUCKET = 'print-files'
+
 app = FastAPI()
+
+# --- ADD THIS BLOCK TO FIX THE ERRORS ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permits all origins (Antigravity/Vercel)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permits GET, POST, etc.
+    allow_headers=["*"],
+)
+# ----------------------------------------
 
 @app.get('/orders/{order_id}/signed-url')
 async def get_signed_url(order_id: str):
